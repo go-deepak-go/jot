@@ -98,3 +98,20 @@ func TestAddNote_AddsNoteToStore(t *testing.T) {
 		t.Fatal("added note not found in the store!")
 	}
 }
+
+func TestAddNote_RejectsEmptyTitle(t *testing.T) {
+	t.Parallel()
+	store := getTestStore()
+	store.AddNote(notes.Note{
+		ID: "abc",
+		Title: "",
+		Body: "test",
+		Notebook: "",
+		Tags: []string{"go", "learning"},
+		Pinned: true,
+	})
+	_, ok := store.GetNote("abc")
+	if ok {
+		t.Fatal("want ok=false for missing Title")
+	}
+}

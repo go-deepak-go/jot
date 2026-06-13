@@ -34,6 +34,10 @@ func (s Store) GetNote(ID string) (Note, bool) {
 	return note ,ok
 }
 
-func (s Store) AddNote(note Note) {
+func (s Store) AddNote(note Note) (Note, error) {
+	if len(strings.TrimSpace(note.Title)) == 0 {
+		return Note{}, fmt.Errorf("title cannot be empty")
+	}
 	s[note.ID] = note
+	return note, nil
 }
