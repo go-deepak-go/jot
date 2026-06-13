@@ -14,6 +14,9 @@ type Note struct {
 	Pinned   bool
 }
 
+type Store map[string]Note
+
+// Summary returns a one-line description of the note.
 func (n Note) Summary() string {
 	pin := " "
 	if n.Pinned {
