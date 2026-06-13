@@ -2,6 +2,7 @@ package notes_test
 
 import (
 	"jot/notes"
+	"slices"
 	"testing"
 )
 
@@ -58,14 +59,19 @@ func TestGetNote_FindsNoteInStoreByID(t *testing.T) {
 	if !ok {
 		t.Fatal("Note not found!")
 	}
-	if want != got {
+	if want.ID != got.ID ||
+		want.Title != got.Title ||
+		want.Body != got.Body ||
+		want.Notebook != got.Notebook ||
+		want.Pinned != got.Pinned ||
+		!slices.Equal(want.Tags, got.Tags) {
 		t.Fatalf("want %#v, got %#v", want, got)
 	}
 }
 
 func TestGetNote_ReturnsFalseWhenNoteNotFound(t *testing.T) {
 	t.Parallel()
-	store = getTestStore()
+	store := getTestStore()
 	_, ok := store.GetNote("nonexistent ID")
 	if ok {
 		t.Fatal("want false for nonexistent ID, got true")

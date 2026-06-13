@@ -28,3 +28,8 @@ func (n Note) Summary() string {
 	}
 	return line
 }
+
+func (s Store) GetNote(ID string) (Note, bool) {
+	note, ok := s[ID]
+	return note ,ok
+}
