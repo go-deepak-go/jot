@@ -33,3 +33,7 @@ func (s Store) GetNote(ID string) (Note, bool) {
 	note, ok := s[ID]
 	return note ,ok
 }
+
+func (s Store) AddNote(note Note) {
+	s[note.ID] = note
+}

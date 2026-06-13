@@ -77,3 +77,24 @@ func TestGetNote_ReturnsFalseWhenNoteNotFound(t *testing.T) {
 		t.Fatal("want false for nonexistent ID, got true")
 	}
 }
+
+func TestAddNote_AddsNoteToStore(t *testing.T) {
+	t.Parallel()
+	store := getTestStore()
+	_, ok := store.GetNote("abc")
+	if ok {
+		t.Fatal("note is already present in the store!")
+	}
+	store.AddNote(notes.Note{
+		ID: "abc",
+		Title: "Making a notes app",
+		Body: "test",
+		Notebook: "",
+		Tags: []string{"go", "learning"},
+		Pinned: true,
+	})
+	_, ok = store.GetNote("abc")
+	if !ok {
+		t.Fatal("added note not found in the store!")
+	}
+}
