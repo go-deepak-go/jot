@@ -2,6 +2,8 @@ package notes
 
 import (
 	"fmt"
+	"maps"
+	"slices"
 	"strings"
 )
 
@@ -40,4 +42,8 @@ func (s Store) AddNote(note Note) (Note, error) {
 	}
 	s[note.ID] = note
 	return note, nil
+}
+
+func (s Store) GetAllNotes() []Note {
+	return slices.Collect(maps.Values(s))
 }

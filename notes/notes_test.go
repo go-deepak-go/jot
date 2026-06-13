@@ -1,6 +1,7 @@
 package notes_test
 
 import (
+	"cmp"
 	"jot/notes"
 	"slices"
 	"testing"
@@ -113,5 +114,48 @@ func TestAddNote_RejectsEmptyTitle(t *testing.T) {
 	_, ok := store.GetNote("abc")
 	if ok {
 		t.Fatal("want ok=false for missing Title")
+	}
+}
+
+func TestGetAllNotes_ReturnAllNotes(t *testing.T) {
+	t.Parallel()
+	store := getTestStore()
+	want := []notes.Note{
+		{
+			ID: "1",
+			Title: "Go maps",
+			Body: "Maps are great.",
+			Notebook: "",
+			Tags: []string{"go", "learning"},
+			Pinned: true,
+		},
+		{
+			ID: "2",
+			Title: "Go Slices",
+			Body: "Slices are great.",
+			Notebook: "",
+			Tags: []string{"go", "learning"},
+			Pinned: false,
+		},
+	}
+	got := store.GetAllNotes()
+	slices.SortFunc(got, func(a, b notes.Note) int {
+		return cmp.Compare(a.Title, b.Title)
+	})
+	slices.SortFunc(want, func(a, b notes.Note) int {
+		return cmp.Compare(a.Title, b.Title)
+	})
+	if len(want) != len(got) {
+		t.Fatalf("got different lists: want %#v, got: %#v", want, got)
+	}
+	for index := range got {
+		if want[index].ID != got[index].ID ||
+		want[index].Title != got[index].Title ||
+		want[index].Body != got[index].Body ||
+		want[index].Notebook != got[index].Notebook ||
+		want[index].Pinned != got[index].Pinned ||
+		!slices.Equal(want[index].Tags, got[index].Tags) {
+			t.Fatalf("want %#v, got %#v", want[index], got[index])
+		}
 	}
 }
