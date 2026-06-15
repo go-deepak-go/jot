@@ -62,3 +62,13 @@ func (s Store) AddTag(ID string, tag string) error {
 	s[ID] = note
 	return nil
 }
+
+func (s Store) Pin(ID string) error {
+	note, ok := s[ID]
+	if !ok {
+		return fmt.Errorf("no note with ID %s", ID)
+	}
+	note.Pinned = true
+	s[ID] = note
+	return nil
+}

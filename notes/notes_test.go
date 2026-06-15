@@ -189,3 +189,34 @@ func TestAddTag_IgnoresDuplicates(t *testing.T) {
 		t.Fatalf("want tag 'go' exactly once, got %d times", count)
 	}
 }
+
+func TestAddTag_ReturnsErrorForMissingNote(t *testing.T) {
+	t.Parallel()
+	store := getTestStore()
+	err := store.AddTag("nonexistent", "go")
+	if err == nil {
+		t.Fatal("want error for nonexistent ID, got nil")
+	}
+}
+
+func TestPin_PinsNote(t *testing.T) {
+	t.Parallel()
+	store := getTestStore()
+	err := store.Pin("2")
+	if err != nil {
+		t.Fatalf("unexpected error: %s", err)
+	}
+	got, _ := store.GetNote("2")
+	if !got.Pinned {
+		t.Fatal("want note to be pinned, but it wasn't")
+	}
+}
+
+func TestPin_ReturnsErrorForMissingNote(t *testing.T) {
+	t.Parallel()
+	store := getTestStore()
+	err := store.Pin("nonexistent")
+	if err == nil {
+		t.Fatal("want error for nonexistent ID, got nil")
+	}
+}
