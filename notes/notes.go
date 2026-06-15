@@ -84,3 +84,13 @@ func (s Store) Search(query string) []Note {
 	}
 	return matches
 }
+
+func (s Store) InNotebook(notebook string) []Note {
+	var result []Note
+	for _, note := range s {
+		if note.Notebook == notebook {
+			result = append(result, note)
+		}
+	}
+	return result
+}

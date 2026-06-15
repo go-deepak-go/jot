@@ -250,3 +250,16 @@ func TestSearch_ReturnsEmptyWhenNoMatch(t * testing.T) {
 		t.Fatalf("want 0 results, got %d", len(got))
 	}
 }
+
+func TestInNotebook_ReturnsNotesInNotebook(t *testing.T) {
+	t.Parallel()
+	store := notes.Store{
+		"1": {ID: "1", Title: "A", Notebook: "Go"},
+		"2": {ID: "2", Title: "B", Notebook: "Cooking"},
+		"3": {ID: "3", Title: "C", Notebook: "Go"},
+	}
+	got := store.InNotebook("Go")
+	if len(got) != 2 {
+		t.Fatalf("want 2 notes in Go notebook, got %d", len(got))
+	}
+}
