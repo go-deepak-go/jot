@@ -159,3 +159,33 @@ func TestGetAllNotes_ReturnAllNotes(t *testing.T) {
 		}
 	}
 }
+
+func TestAddTag_AddsTagToNote(t *testing.T) {
+	t.Parallel()
+	store := getTestStore()
+	err := store.AddTag("1", "maps")
+	if err != nil {
+		t.Fatalf("unexpected error: %s", err)
+	}
+	got, _ := store.GetNote("1")
+	if !slices.Contains(got.Tags, "maps") {
+		t.Fatal("want tag 'maps' to be present, but it wasn't")
+	}
+}
+
+func TestAddTag_IgnoresDuplicates(t *testing.T) {
+	t.Parallel()
+	store := getTestStore()
+	store.AddTag("1", "go")
+	store.AddTag("1", "go")
+	got, _ := store.GetNote("1")
+	count := 0
+	for _, tag := range got.Tags {
+		if tag == "go" {
+			count++
+		}
+	}
+	if count != 1 {
+		t.Fatalf("want tag 'go' exactly once, got %d times", count)
+	}
+}

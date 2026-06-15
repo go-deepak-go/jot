@@ -47,3 +47,18 @@ func (s Store) AddNote(note Note) (Note, error) {
 func (s Store) GetAllNotes() []Note {
 	return slices.Collect(maps.Values(s))
 }
+
+func (s Store) AddTag(ID string, tag string) error {
+	note, ok := s[ID]
+	if !ok {
+		return fmt.Errorf("no note with ID %s", ID)
+	}
+	for _, existingTag := range note.Tags {
+		if existingTag == tag {
+			return nil
+		}
+	}
+	note.Tags = append(note.Tags, tag)
+	s[ID] = note
+	return nil
+}
