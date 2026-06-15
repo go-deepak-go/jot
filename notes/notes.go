@@ -72,3 +72,15 @@ func (s Store) Pin(ID string) error {
 	s[ID] = note
 	return nil
 }
+
+func (s Store) Search(query string) []Note {
+	query = strings.ToLower(query)
+	var matches []Note
+	for _, note := range s {
+		haystack := strings.ToLower(note.Title + " " + note.Body)
+		if strings.Contains(haystack, query) {
+			matches = append(matches, note)
+		}
+	}
+	return matches
+}

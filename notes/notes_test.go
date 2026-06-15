@@ -220,3 +220,33 @@ func TestPin_ReturnsErrorForMissingNote(t *testing.T) {
 		t.Fatal("want error for nonexistent ID, got nil")
 	}
 }
+
+func TestSearch_FindsByTitle(t *testing.T) {
+	t.Parallel()
+	store := getTestStore()
+	got := store.Search("maps")
+	if len(got) != 1 {
+		t.Fatalf("want 1 result, got %d", len(got))
+	}
+	if got[0].ID != "1" {
+		t.Fatalf("want note ID 1, got %s", got[0].ID)
+	}
+}
+
+func TestSearch_IsCaseInsensitive(t *testing.T) {
+	t.Parallel()
+	store := getTestStore()
+	got := store.Search("MAPS")
+	if len(got) != 1 {
+		t.Fatalf("want 1 result for uppercase query, got %d", len(got))
+	}
+}
+
+func TestSearch_ReturnsEmptyWhenNoMatch(t * testing.T) {
+	t.Parallel()
+	store := getTestStore()
+	got := store.Search("python")
+	if len(got) != 0 {
+		t.Fatalf("want 0 results, got %d", len(got))
+	}
+}
