@@ -2,9 +2,12 @@ package notes_test
 
 import (
 	"cmp"
-	"jot/notes"
 	"slices"
 	"testing"
+
+	"jot/notes"
+
+	gocmp "github.com/google/go-cmp/cmp"
 )
 
 func TestSummary_ReturnsNoteSummary(t *testing.T) {
@@ -60,13 +63,16 @@ func TestGetNote_FindsNoteInStoreByID(t *testing.T) {
 	if !ok {
 		t.Fatal("Note not found!")
 	}
-	if want.ID != got.ID ||
-		want.Title != got.Title ||
-		want.Body != got.Body ||
-		want.Notebook != got.Notebook ||
-		want.Pinned != got.Pinned ||
-		!slices.Equal(want.Tags, got.Tags) {
-		t.Fatalf("want %#v, got %#v", want, got)
+	// if want.ID != got.ID ||
+	// 	want.Title != got.Title ||
+	// 	want.Body != got.Body ||
+	// 	want.Notebook != got.Notebook ||
+	// 	want.Pinned != got.Pinned ||
+	// 	!slices.Equal(want.Tags, got.Tags) {
+	// 	t.Fatalf("want %#v, got %#v", want, got)
+	// }
+	if !gocmp.Equal(want, got) {
+		t.Fatalf("%s", gocmp.Diff(want, got))
 	}
 }
 
@@ -145,18 +151,21 @@ func TestGetAllNotes_ReturnAllNotes(t *testing.T) {
 	slices.SortFunc(want, func(a, b notes.Note) int {
 		return cmp.Compare(a.Title, b.Title)
 	})
-	if len(want) != len(got) {
-		t.Fatalf("got different lists: want %#v, got: %#v", want, got)
-	}
-	for index := range got {
-		if want[index].ID != got[index].ID ||
-		want[index].Title != got[index].Title ||
-		want[index].Body != got[index].Body ||
-		want[index].Notebook != got[index].Notebook ||
-		want[index].Pinned != got[index].Pinned ||
-		!slices.Equal(want[index].Tags, got[index].Tags) {
-			t.Fatalf("want %#v, got %#v", want[index], got[index])
-		}
+	// if len(want) != len(got) {
+	// 	t.Fatalf("got different lists: want %#v, got: %#v", want, got)
+	// }
+	// for index := range got {
+	// 	if want[index].ID != got[index].ID ||
+	// 	want[index].Title != got[index].Title ||
+	// 	want[index].Body != got[index].Body ||
+	// 	want[index].Notebook != got[index].Notebook ||
+	// 	want[index].Pinned != got[index].Pinned ||
+	// 	!slices.Equal(want[index].Tags, got[index].Tags) {
+	// 		t.Fatalf("want %#v, got %#v", want[index], got[index])
+	// 	}
+	// }
+	if !gocmp.Equal(want, got) {
+		t.Fatalf("%s", gocmp.Diff(want, got))
 	}
 }
 
