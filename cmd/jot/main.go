@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -13,6 +14,33 @@ type Command struct {
 	Query string
 	Tag string
 	Notebook string
+	Title string
+	Body string
+}
+
+func Save(store notes.Store, path string) error {
+	data, err := json.Marshal(store)
+	if err != nil {
+		return err
+	}
+	err = os.WriteFile(path, data, 0644)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func Load(path string) (notes.Store, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return notes.Store{}, err
+	}
+	var store notes.Store
+	err = json.Unmarshal(data, &store)
+	if err != nil {
+		return notes.Store{}, err
+	}
+	return store, nil
 }
 
 func parseArgs(args []string) (Command, error) {
@@ -51,6 +79,11 @@ func parseArgs(args []string) (Command, error) {
 			return Command{}, fmt.Errorf("usage: jot tag <id> <tag>")
 		}
 		return Command{Name: "tag", ID: rest[0], Tag: rest[1]}, nil
+	case "add":
+		if len(rest) < 2 {
+			return Command{}, fmt.Errorf("usage: jot add <title> <body>")
+		}
+		return Command{Name: "add", Title: rest[0], Body: rest[1]}, nil
 	default:
 		return Command{}, fmt.Errorf("unknown command: %s", name)
 	}
@@ -114,12 +147,27 @@ func tagNote(store notes.Store, id string, tag string) {
 	fmt.Println("tagged note", id, "with", tag)
 	fmt.Println(store[id].Summary())
 }
+
+func addNote(store notes.Store, title string, body string) {
+	ID := fmt.Sprintf("%d", len(store) + 1)
+	note, err := store.AddNote(notes.Note{ID: ID, Title: title, Body: body})
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
+	fmt.Println("added note", ID)
+	fmt.Println(note.Summary())
+}
  
 func main() {
-	store := notes.Store{
-		"1": {ID: "1", Title: "Go maps", Body: "Maps are great.", Notebook: "Go", Tags: []string{"go"}, Pinned: false},
-		"2": {ID: "2", Title: "Sourdough", Body: "Mix flour and water.", Notebook: "Cooking", Tags: []string{}, Pinned: false},
-		"3": {ID: "3", Title: "Go slices", Body: "Slices are fun.", Notebook: "Go", Tags: []string{}, Pinned: false},
+	// store := notes.Store{
+	// 	"1": {ID: "1", Title: "Go maps", Body: "Maps are great.", Notebook: "Go", Tags: []string{"go"}, Pinned: false},
+	// 	"2": {ID: "2", Title: "Sourdough", Body: "Mix flour and water.", Notebook: "Cooking", Tags: []string{}, Pinned: false},
+	// 	"3": {ID: "3", Title: "Go slices", Body: "Slices are fun.", Notebook: "Go", Tags: []string{}, Pinned: false},
+	// }
+	store, err := Load("notes.json")
+	if err != nil {
+		store = notes.Store{}
 	}
  
 	command, err := parseArgs(os.Args)
@@ -139,7 +187,21 @@ func main() {
 		notebookNotes(store, command.Notebook)
 	case "pin":
 		pinNote(store, command.ID)
+		err := Save(store, "notes.json")
+		if err != nil {
+			fmt.Println("Error saving notes:", err)
+		}
 	case "tag":
 		tagNote(store, command.ID, command.Tag)
+		err := Save(store, "notes.json")
+		if err != nil {
+			fmt.Println("Error saving notes:", err)
+		}
+	case "add":
+		addNote(store, command.Title, command.Body)
+		err := Save(store, "notes.json")
+		if err != nil {
+			fmt.Println("Error saving notes:", err)
+		}
 	}
 }
