@@ -2,6 +2,7 @@ package notes_test
 
 import (
 	"cmp"
+	"path/filepath"
 	"slices"
 	"testing"
 
@@ -270,5 +271,23 @@ func TestInNotebook_ReturnsNotesInNotebook(t *testing.T) {
 	got := store.InNotebook("Go")
 	if len(got) != 2 {
 		t.Fatalf("want 2 notes in Go notebook, got %d", len(got))
+	}
+}
+
+func TestSaveAndLoad_RoundTrip(t *testing.T) {
+	t.Parallel()
+	store := getTestStore()
+	dir := t.TempDir()
+	path := filepath.Join(dir, "notes.json")
+	err := store.Save(path)
+	if err != nil {
+		t.Fatalf("unexpected error saving: %s", err)
+	}
+	loaded, err := notes.Load(path)
+	if err != nil {
+		t.Fatalf("unexpected error loading: %s", err)
+	}
+	if !gocmp.Equal(store, loaded) {
+		t.Fatalf("%s", gocmp.Diff(store, loaded))
 	}
 }

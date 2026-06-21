@@ -1,8 +1,10 @@
 package notes
 
 import (
+	"encoding/json"
 	"fmt"
 	"maps"
+	"os"
 	"slices"
 	"strings"
 )
@@ -93,4 +95,29 @@ func (s Store) InNotebook(notebook string) []Note {
 		}
 	}
 	return result
+}
+
+func (s Store) Save(path string) error {
+	data, err := json.Marshal(s)
+	if err != nil {
+		return err
+	}
+	err = os.WriteFile(path, data, 0644)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func Load(path string) (Store, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return Store{}, err
+	}
+	var store Store
+	err = json.Unmarshal(data, &store)
+	if err != nil {
+		return Store{}, err
+	}
+	return store, nil
 }
