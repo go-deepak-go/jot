@@ -285,3 +285,38 @@ func TestSaveAndLoad_RoundTrip(t *testing.T) {
         t.Fatalf("%s", gocmp.Diff(want, got))
     }
 }
+
+func TestDelete_DeletesNote(t *testing.T) {
+    t.Parallel()
+    store := getTestStore()
+    err := store.Delete("1")
+    if err != nil {
+        t.Fatalf("unexpected error: %s", err)
+    }
+    _, ok := store.GetNote("1")
+    if ok {
+        t.Fatal("want note to be deleted, but it was still found")
+    }
+}
+
+func TestDelete_ReturnsErrorForMissingNote(t *testing.T) {
+    t.Parallel()
+    store := getTestStore()
+    err := store.Delete("nonexistent")
+    if err == nil {
+        t.Fatal("want error for nonexistent ID, got nil")
+    }
+}
+
+func TestAddNote_IDDoesNotCollideAfterDelete(t *testing.T) {
+    t.Parallel()
+    store := getTestStore() // notes "1" and "2"
+    store.Delete("2")
+    note, err := store.AddNote(notes.Note{Title: "New note"})
+    if err != nil {
+        t.Fatalf("unexpected error: %s", err)
+    }
+    if note.ID == "2" {
+        t.Fatal("want new note to have a fresh ID, got duplicate ID 2")
+    }
+}

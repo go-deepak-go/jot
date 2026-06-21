@@ -83,6 +83,15 @@ func saveOrPrint(store notes.Store) {
     }
 }
 
+func deleteNote(store notes.Store, id string) {
+	err := store.Delete(id)
+	if err != nil {
+		fmt.Println("error:", err)
+		return
+	}
+	fmt.Println("deleted note", id)
+}
+
 func parseArgs(args []string) (Command, error) {
 	if len(args) < 2 {
 		return Command{}, fmt.Errorf("usage: jot <command> [args]")
@@ -124,6 +133,11 @@ func parseArgs(args []string) (Command, error) {
 			return Command{}, fmt.Errorf("usage: jot add <title> <body>")
 		}
 		return Command{Name: "add", Title: rest[0], Body: rest[1]}, nil
+	case "delete":
+		if len(rest) < 1 {
+			return Command{}, fmt.Errorf("usage: jot delete <id>")
+		}
+		return Command{Name: "delete", ID: rest[0]}, nil
 	default:
 		return Command{}, fmt.Errorf("unknown command: %s", name)
 	}

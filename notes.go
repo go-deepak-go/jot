@@ -138,8 +138,20 @@ func Load(path string) (Store, error) {
 	if err != nil {
 		return Store{}, err
 	}
+	if sj.Notes == nil {
+		sj.Notes = map[string]Note{}
+	}
 	return Store{
 		notes: sj.Notes,
 		nextID: sj.NextID,
 	}, nil
+}
+
+func (s Store) Delete(ID string) error {
+	_, ok := s.notes[ID]
+	if !ok {
+		return fmt.Errorf("no note with ID %s", ID)
+	}
+	delete(s.notes, ID)
+	return nil
 }

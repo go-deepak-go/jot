@@ -47,5 +47,8 @@ func main() {
 	case "add":
 		addNote(&store, command.Title, command.Body)
 		saveOrPrint(store)
+	case "delete":
+		deleteNote(store, command.ID)
+		saveOrPrint(store)
 	}
 }
