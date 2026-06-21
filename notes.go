@@ -18,7 +18,21 @@ type Note struct {
 	Pinned   bool
 }
 
-type Store map[string]Note
+type Store struct {
+	notes map[string]Note
+	nextID int
+}
+
+type storeJSON struct {
+    Notes  map[string]Note `json:"notes"`
+    NextID int             `json:"nextID"`
+}
+
+func New() Store {
+	return Store{
+		notes: map[string]Note{},
+	}
+}
 
 // Summary returns a one-line description of the note.
 func (n Note) Summary() string {
@@ -34,24 +48,26 @@ func (n Note) Summary() string {
 }
 
 func (s Store) GetNote(ID string) (Note, bool) {
-	note, ok := s[ID]
+	note, ok := s.notes[ID]
 	return note ,ok
 }
 
-func (s Store) AddNote(note Note) (Note, error) {
+func (s *Store) AddNote(note Note) (Note, error) {
 	if len(strings.TrimSpace(note.Title)) == 0 {
 		return Note{}, fmt.Errorf("title cannot be empty")
 	}
-	s[note.ID] = note
+	s.nextID++
+	note.ID = fmt.Sprintf("%d", s.nextID)
+	s.notes[note.ID] = note
 	return note, nil
 }
 
 func (s Store) GetAllNotes() []Note {
-	return slices.Collect(maps.Values(s))
+	return slices.Collect(maps.Values(s.notes))
 }
 
 func (s Store) AddTag(ID string, tag string) error {
-	note, ok := s[ID]
+	note, ok := s.notes[ID]
 	if !ok {
 		return fmt.Errorf("no note with ID %s", ID)
 	}
@@ -61,24 +77,24 @@ func (s Store) AddTag(ID string, tag string) error {
 		}
 	}
 	note.Tags = append(note.Tags, tag)
-	s[ID] = note
+	s.notes[ID] = note
 	return nil
 }
 
 func (s Store) Pin(ID string) error {
-	note, ok := s[ID]
+	note, ok := s.notes[ID]
 	if !ok {
 		return fmt.Errorf("no note with ID %s", ID)
 	}
 	note.Pinned = true
-	s[ID] = note
+	s.notes[ID] = note
 	return nil
 }
 
 func (s Store) Search(query string) []Note {
 	query = strings.ToLower(query)
 	var matches []Note
-	for _, note := range s {
+	for _, note := range s.notes {
 		haystack := strings.ToLower(note.Title + " " + note.Body)
 		if strings.Contains(haystack, query) {
 			matches = append(matches, note)
@@ -89,7 +105,7 @@ func (s Store) Search(query string) []Note {
 
 func (s Store) InNotebook(notebook string) []Note {
 	var result []Note
-	for _, note := range s {
+	for _, note := range s.notes {
 		if note.Notebook == notebook {
 			result = append(result, note)
 		}
@@ -98,7 +114,10 @@ func (s Store) InNotebook(notebook string) []Note {
 }
 
 func (s Store) Save(path string) error {
-	data, err := json.Marshal(s)
+	data, err := json.Marshal(storeJSON{
+		Notes: s.notes,
+		NextID: s.nextID,
+	})
 	if err != nil {
 		return err
 	}
@@ -114,10 +133,13 @@ func Load(path string) (Store, error) {
 	if err != nil {
 		return Store{}, err
 	}
-	var store Store
-	err = json.Unmarshal(data, &store)
+	var sj storeJSON
+	err = json.Unmarshal(data, &sj)
 	if err != nil {
 		return Store{}, err
 	}
-	return store, nil
+	return Store{
+		notes: sj.Notes,
+		nextID: sj.NextID,
+	}, nil
 }

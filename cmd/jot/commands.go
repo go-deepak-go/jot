@@ -51,8 +51,9 @@ func pinNote(store notes.Store, id string) {
 		fmt.Println("error:", err)
 		return
 	}
+	note, _ := store.GetNote(id)
 	fmt.Println("pinned note", id)
-	fmt.Println(store[id].Summary())
+	fmt.Println(note.Summary())
 }
 
 func tagNote(store notes.Store, id string, tag string) {
@@ -61,19 +62,18 @@ func tagNote(store notes.Store, id string, tag string) {
 		fmt.Println("error:", err)
 		return
 	}
+	note, _ := store.GetNote(id)
 	fmt.Println("tagged note", id, "with", tag)
-	fmt.Println(store[id].Summary())
+	fmt.Println(note.Summary())
 }
 
-func addNote(store notes.Store, title string, body string) {
-	ID := fmt.Sprintf("%d", len(store)+1)
-	note, err := store.AddNote(notes.Note{ID: ID, Title: title, Body: body})
+func addNote(store *notes.Store, title string, body string) {
+	note, err := store.AddNote(notes.Note{Title: title, Body: body})
 	if err != nil {
 		fmt.Println("error:", err)
 		return
 	}
-	fmt.Println("added note", ID)
-	fmt.Println(note.Summary())
+	fmt.Println("added:", note.Summary())
 }
 
 func saveOrPrint(store notes.Store) {

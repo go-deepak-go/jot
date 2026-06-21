@@ -28,24 +28,22 @@ func TestSummary_ReturnsNoteSummary(t *testing.T) {
 }
 
 func getTestStore() notes.Store {
-	return notes.Store{
-		"1": {
-			ID: "1",
+	store := notes.New()
+	store.AddNote(notes.Note{
 			Title: "Go maps",
 			Body: "Maps are great.",
 			Notebook: "",
 			Tags: []string{"go", "learning"},
 			Pinned: true,
-		},
-		"2": {
-			ID: "2",
+	})
+	store.AddNote(notes.Note{
 			Title: "Go Slices",
 			Body: "Slices are great.",
 			Notebook: "",
 			Tags: []string{"go", "learning"},
 			Pinned: false,
-		},
-	}
+	})
+	return store
 }
 
 func TestGetNote_FindsNoteInStoreByID(t *testing.T) {
@@ -88,39 +86,29 @@ func TestGetNote_ReturnsFalseWhenNoteNotFound(t *testing.T) {
 func TestAddNote_AddsNoteToStore(t *testing.T) {
 	t.Parallel()
 	store := getTestStore()
-	_, ok := store.GetNote("abc")
-	if ok {
-		t.Fatal("note is already present in the store!")
-	}
-	store.AddNote(notes.Note{
-		ID: "abc",
-		Title: "Making a notes app",
-		Body: "test",
-		Notebook: "",
-		Tags: []string{"go", "learning"},
-		Pinned: true,
-	})
-	_, ok = store.GetNote("abc")
-	if !ok {
-		t.Fatal("added note not found in the store!")
-	}
+	note, err := store.AddNote(notes.Note{
+        Title:    "Making a notes app",
+        Body:     "test",
+        Notebook: "",
+        Tags:     []string{"go", "learning"},
+        Pinned:   true,
+    })
+	if err != nil {
+        t.Fatalf("unexpected error: %s", err)
+    }
+    _, ok := store.GetNote(note.ID)
+    if !ok {
+        t.Fatal("added note not found in the store!")
+    }
 }
 
 func TestAddNote_RejectsEmptyTitle(t *testing.T) {
-	t.Parallel()
-	store := getTestStore()
-	store.AddNote(notes.Note{
-		ID: "abc",
-		Title: "",
-		Body: "test",
-		Notebook: "",
-		Tags: []string{"go", "learning"},
-		Pinned: true,
-	})
-	_, ok := store.GetNote("abc")
-	if ok {
-		t.Fatal("want ok=false for missing Title")
-	}
+    t.Parallel()
+    store := getTestStore()
+    _, err := store.AddNote(notes.Note{Title: ""})
+    if err == nil {
+        t.Fatal("want error for empty title, got nil")
+    }
 }
 
 func TestGetAllNotes_ReturnAllNotes(t *testing.T) {
@@ -261,32 +249,39 @@ func TestSearch_ReturnsEmptyWhenNoMatch(t * testing.T) {
 }
 
 func TestInNotebook_ReturnsNotesInNotebook(t *testing.T) {
-	t.Parallel()
-	store := notes.Store{
-		"1": {ID: "1", Title: "A", Notebook: "Go"},
-		"2": {ID: "2", Title: "B", Notebook: "Cooking"},
-		"3": {ID: "3", Title: "C", Notebook: "Go"},
-	}
-	got := store.InNotebook("Go")
-	if len(got) != 2 {
-		t.Fatalf("want 2 notes in Go notebook, got %d", len(got))
-	}
+    t.Parallel()
+    store := notes.New()
+    store.AddNote(notes.Note{Title: "A", Notebook: "Go"})
+    store.AddNote(notes.Note{Title: "B", Notebook: "Cooking"})
+    store.AddNote(notes.Note{Title: "C", Notebook: "Go"})
+    got := store.InNotebook("Go")
+    if len(got) != 2 {
+        t.Fatalf("want 2 notes in Go notebook, got %d", len(got))
+    }
 }
 
 func TestSaveAndLoad_RoundTrip(t *testing.T) {
-	t.Parallel()
-	store := getTestStore()
-	dir := t.TempDir()
-	path := filepath.Join(dir, "notes.json")
-	err := store.Save(path)
-	if err != nil {
-		t.Fatalf("unexpected error saving: %s", err)
-	}
-	loaded, err := notes.Load(path)
-	if err != nil {
-		t.Fatalf("unexpected error loading: %s", err)
-	}
-	if !gocmp.Equal(store, loaded) {
-		t.Fatalf("%s", gocmp.Diff(store, loaded))
-	}
+    t.Parallel()
+    store := getTestStore()
+    dir := t.TempDir()
+    path := filepath.Join(dir, "notes.json")
+    err := store.Save(path)
+    if err != nil {
+        t.Fatalf("unexpected error saving: %s", err)
+    }
+    loaded, err := notes.Load(path)
+    if err != nil {
+        t.Fatalf("unexpected error loading: %s", err)
+    }
+    want := store.GetAllNotes()
+    got := loaded.GetAllNotes()
+    slices.SortFunc(want, func(a, b notes.Note) int {
+        return cmp.Compare(a.ID, b.ID)
+    })
+    slices.SortFunc(got, func(a, b notes.Note) int {
+        return cmp.Compare(a.ID, b.ID)
+    })
+    if !gocmp.Equal(want, got) {
+        t.Fatalf("%s", gocmp.Diff(want, got))
+    }
 }

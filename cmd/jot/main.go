@@ -20,7 +20,7 @@ type Command struct {
 func main() {
 	store, err := notes.Load("notes.json")
 	if err != nil {
-		store = notes.Store{}
+		store = notes.New()
 	}
  
 	command, err := parseArgs(os.Args)
@@ -45,7 +45,7 @@ func main() {
 		tagNote(store, command.ID, command.Tag)
 		saveOrPrint(store)
 	case "add":
-		addNote(store, command.Title, command.Body)
+		addNote(&store, command.Title, command.Body)
 		saveOrPrint(store)
 	}
 }
