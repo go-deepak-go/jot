@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"jot/notes"
+	notes "github.com/go-deepak-go/jot"
 )
 
 type Command struct {

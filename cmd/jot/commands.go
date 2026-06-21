@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"jot/notes"
+	notes "github.com/go-deepak-go/jot"
 )
 
 func listNotes(store notes.Store) {

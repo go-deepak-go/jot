@@ -1,4 +1,4 @@
-module jot
+module github.com/go-deepak-go/jot
 
 go 1.26.3
 

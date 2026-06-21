@@ -6,8 +6,7 @@ import (
 	"slices"
 	"testing"
 
-	"jot/notes"
-
+	notes "github.com/go-deepak-go/jot"
 	gocmp "github.com/google/go-cmp/cmp"
 )
 
