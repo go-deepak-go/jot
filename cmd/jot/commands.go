@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	notes "github.com/go-deepak-go/jot"
+	"github.com/go-deepak-go/jot/notes"
 )
 
 func listNotes(store notes.Store) {
