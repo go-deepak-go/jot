@@ -1,0 +1,3 @@
+exec jot add 'Go maps' 'Maps are great.'
+stdout 'added'
+! stderr .

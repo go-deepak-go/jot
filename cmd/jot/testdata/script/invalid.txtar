@@ -1,0 +1,3 @@
+! exec jot view
+! exec jot tag 1
+! exec jot delete

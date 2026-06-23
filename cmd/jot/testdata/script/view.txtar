@@ -1,0 +1,5 @@
+exec jot add 'Go maps' 'Maps are great.'
+exec jot view 1
+stdout 'Go maps'
+stdout 'Maps are great.'
+! stderr .

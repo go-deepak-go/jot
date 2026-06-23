@@ -1,0 +1,4 @@
+exec jot add 'Go maps' 'Maps are great.'
+exec jot delete 1
+exec jot list
+! stdout 'Go maps'

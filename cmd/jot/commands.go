@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	notes "github.com/go-deepak-go/jot"
 )
@@ -140,5 +141,41 @@ func parseArgs(args []string) (Command, error) {
 		return Command{Name: "delete", ID: rest[0]}, nil
 	default:
 		return Command{}, fmt.Errorf("unknown command: %s", name)
+	}
+}
+
+func Main() {
+	store, err := notes.Load("notes.json")
+	if err != nil {
+		store = notes.New()
+	}
+ 
+	command, err := parseArgs(os.Args)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+ 
+	switch command.Name {
+	case "list":
+		listNotes(store)
+	case "view":
+		viewNote(store, command.ID)
+	case "search":
+		searchNotes(store, command.Query)
+	case "notebook":
+		notebookNotes(store, command.Notebook)
+	case "pin":
+		pinNote(store, command.ID)
+		saveOrPrint(store)
+	case "tag":
+		tagNote(store, command.ID, command.Tag)
+		saveOrPrint(store)
+	case "add":
+		addNote(&store, command.Title, command.Body)
+		saveOrPrint(store)
+	case "delete":
+		deleteNote(store, command.ID)
+		saveOrPrint(store)
 	}
 }

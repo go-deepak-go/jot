@@ -1,0 +1,6 @@
+exec jot add 'Go maps' 'Maps are great.'
+exec jot tag 1 important
+stdout 'important'
+exec jot list
+stdout '#important'
+! stderr .

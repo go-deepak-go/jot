@@ -1,0 +1,7 @@
+exec jot add 'Go maps' 'Maps are great.'
+exec jot add 'Sourdough' 'Mix flour and water.'
+exec jot pin 1
+stdout 'pinned'
+exec jot list
+stdout '\* #1'
+! stderr .

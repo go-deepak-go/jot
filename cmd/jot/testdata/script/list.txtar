@@ -1,0 +1,6 @@
+exec jot add 'Go maps' 'Maps are great.'
+exec jot add 'Sourdough' 'Mix flour and water.'
+exec jot list
+stdout 'Go maps'
+stdout 'Sourdough'
+! stderr .
